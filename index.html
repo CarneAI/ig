@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocialDev - Red Social para Desarrolladores y Diseñadores</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-color: #fafafa;
+            --card-bg: #ffffff;
+            --text-primary: #262626;
+            --text-secondary: #8e8e8e;
+            --border-color: #dbdbdb;
+            --primary-color: #0095f6;
+            --primary-hover: #0081d6;
+            --programmer-color: #10b981;
+            --designer-color: #3b82f6;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #000000;
+            --card-bg: #1a1a1a;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a0a0a0;
+            --border-color: #333333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background-color 0.3s;
+        }
+
+        /* Login/Register Styles */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        }
+
+        .auth-box {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--border-color);
+        }
+
+        .auth-box h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #f09433, #dc2743);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0,149,246,0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,149,246,0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0,149,246,0.1);
+        }
+
+        .toggle-auth {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-secondary);
+        }
+
+        .toggle-auth span {
+            color: var(--primary-color);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .role-programmer {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--programmer-color);
+            border: 1px solid var(--programmer-color);
+        }
+
+        .role-designer {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--designer-color);
+            border: 1px solid var(--designer-color);
+        }
+
+        /* Main App Layout */
+        .app-container {
+            display: none;
+            max-width: 935px;
+            margin: 0 auto;
+            padding-bottom: 60px;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #f09433, #dc2743);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-icons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .nav-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ed4956;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .main-content {
+            margin-top: 80px;
+            padding: 0 20px;
+        }
+
+        /* Stories/Status Bar */
+        .stories-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            display: flex;
+            gap: 20px;
+            scrollbar-width: none;
+        }
+
+        .stories-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .story {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            min-width: 72px;
+        }
+
+        .story-ring {
+            width: 66px;
+            height: 66px;
+            border-radius: 50%;
+            padding: 3px;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            margin-bottom: 6px;
+        }
+
+        .story-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid var(--card-bg);
+            object-fit: cover;
+            background: var(--bg-color);
+        }
+
+        .story-name {
+            font-size: 12px;
+            color: var(--text-primary);
+            max-width: 70px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Posts Feed */
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .post {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            gap: 12px;
+        }
+
+        .post-user-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        .post-user-img.programmer {
+            border-color: var(--programmer-color);
+        }
+
+        .post-user-img.designer {
+            border-color: var(--designer-color);
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .post-username {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .post-location {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .post-more {
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--text-secondary);
+        }
+
+        .post-image {
+            width: 100%;
+            max-height: 600px;
+            object-fit: cover;
+            background: var(--bg-color);
+        }
+
+        .post-actions {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 24px;
+        }
+
+        .post-actions-left {
+            display: flex;
+            gap: 16px;
+        }
+
+        .action-btn {
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .action-btn.liked {
+            color: #ed4956;
+            animation: likeAnimation 0.3s ease;
+        }
+
+        @keyframes likeAnimation {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        .post-likes {
+            padding: 0 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .post-caption {
+            padding: 0 16px 16px;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .post-caption strong {
+            margin-right: 8px;
+        }
+
+        .post-time {
+            padding: 0 16px 16px;
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Create Post Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .file-input-wrapper {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-input-wrapper:hover {
+            border-color: var(--primary-color);
+            background: rgba(0,149,246,0.05);
+        }
+
+        .file-input-wrapper input {
+            display: none;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .caption-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+            background: var(--bg-color);
+            color: var(--text-primary);
+        }
+
+        /* Chat Styles */
+        .chat-container {
+            display: none;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-color);
+            z-index: 900;
+        }
+
+        .chat-layout {
+            display: flex;
+            height: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .chat-sidebar {
+            width: 350px;
+            border-right: 1px solid var(--border-color);
+            background: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .chat-list {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .chat-item {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chat-item:hover, .chat-item.active {
+            background: rgba(0,149,246,0.05);
+        }
+
+        .chat-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .chat-item-info {
+            flex: 1;
+        }
+
+        .chat-item-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chat-item-preview {
+            font-size: 13px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-color);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 20px;
+            position: relative;
+            animation: messageSlide 0.3s ease;
+        }
+
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            background: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-image {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            max-height: 120px;
+            resize: none;
+            font-family: inherit;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .chat-action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-action-btn.secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 20px;
+        }
+
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 40px;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Profile Page */
+        .profile-container {
+            display: none;
+            max-width: 935px;
+            margin: 0 auto;
+            padding: 90px 20px 40px;
+        }
+
+        .profile-header {
+            display: flex;
+            gap: 80px;
+            margin-bottom: 44px;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--border-color);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-username-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .profile-username {
+            font-size: 28px;
+            font-weight: 300;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            display: flex;
+            gap: 6px;
+        }
+
+        .stat-value {
+            font-weight: 600;
+        }
+
+        .stat-label {
+            color: var(--text-primary);
+        }
+
+        .profile-bio {
+            line-height: 1.5;
+        }
+
+        .profile-role {
+            display: inline-flex;
+            margin-top: 8px;
+        }
+
+        .profile-posts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+        }
+
+        .profile-post {
+            aspect-ratio: 1;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+
+        .profile-post img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .profile-post:hover img {
+            transform: scale(1.05);
+        }
+
+        .profile-post-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            color: white;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .profile-post:hover .profile-post-overlay {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .chat-sidebar {
+                display: none;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .profile-stats {
+                justify-content: center;
+            }
+            
+            .profile-posts {
+                gap: 3px;
+            }
+            
+            .main-content {
+                padding: 0;
+            }
+            
+            .post {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+        }
+
+        /* Loading Animation */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-color) 25%, var(--border-color) 50%, var(--bg-color) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 3000;
+            font-weight: 500;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Mobile Bottom Nav */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 10px 20px;
+            justify-content: space-around;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-nav {
+                display: flex;
+            }
+            
+            .app-container {
+                padding-bottom: 80px;
+            }
+            
+            .navbar .nav-icon:not(:first-child) {
+                display: none;
+            }
+        }
+
+        .online-indicator {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth Container -->
+    <div class="auth-container" id="authContainer">
+        <div class="auth-box">
+            <h1>SocialDev</h1>
+            <div id="loginForm">
+                <div class="form-group">
+                    <label>Usuario</label>
+                    <input type="text" id="loginUsername" placeholder="Ingresa tu usuario">
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="loginPassword" placeholder="Ingresa tu contraseña">
+                </div>
+                <button class="btn" onclick="login()">Iniciar Sesión</button>
+                <div class="toggle-auth">
+                    ¿No tienes cuenta? <span onclick="toggleAuth()">Regístrate</span>
+                </div>
+            </div>
+            
+            <div id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <label>Usuario</label>
+                    <input type="text" id="regUsername" placeholder="Elige un nombre de usuario">
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="regPassword" placeholder="Crea una contraseña">
+                </div>
+                <div class="form-group">
+                    <label>Especialidad</label>
+                    <select id="regRole">
+                        <option value="programmer">Programador 💚</option>
+                        <option value="designer">Diseñador 💙</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Foto de Perfil</label>
+                    <input type="file" id="regAvatar" accept="image/*" onchange="previewAvatar(this)">
+                    <img id="avatarPreview" style="width: 100px; height: 100px; border-radius: 50%; margin-top: 10px; object-fit: cover; display: none;">
+                </div>
+                <button class="btn" onclick="register()">Registrarse</button>
+                <button class="btn btn-secondary" onclick="toggleAuth()">Ya tengo cuenta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-container" id="appContainer">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="nav-brand" onclick="showFeed()">SocialDev</div>
+            <div class="nav-icons">
+                <span class="nav-icon" onclick="showFeed()">🏠</span>
+                <span class="nav-icon" onclick="openChat()">💬<span class="notification-badge" id="msgBadge" style="display: none;">0</span></span>
+                <span class="nav-icon" onclick="openCreatePost()">➕</span>
+                <span class="nav-icon" onclick="showProfile()">👤</span>
+                <span class="nav-icon" onclick="logout()">🚪</span>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Stories -->
+            <div class="stories-container" id="storiesContainer"></div>
+            
+            <!-- Feed -->
+            <div class="feed" id="feed"></div>
+        </div>
+    </div>
+
+    <!-- Chat Container -->
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-layout">
+            <div class="chat-sidebar">
+                <div class="chat-header">Mensajes</div>
+                <div class="chat-list" id="chatList"></div>
+            </div>
+            <div class="chat-main" id="chatMain">
+                <div class="empty-state">
+                    <div class="empty-state-icon">💬</div>
+                    <h3>Tus mensajes</h3>
+                    <p>Selecciona un chat para comenzar a conversar</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Container -->
+    <div class="profile-container" id="profileContainer">
+        <div class="profile-header">
+            <img id="profileAvatar" class="profile-avatar" src="" alt="Profile">
+            <div class="profile-info">
+                <div class="profile-username-row">
+                    <h1 class="profile-username" id="profileUsername"></h1>
+                    <button class="btn" style="width: auto; padding: 8px 20px;" onclick="logout()">Cerrar Sesión</button>
+                </div>
+                <div class="profile-stats">
+                    <div class="stat">
+                        <span class="stat-value" id="postCount">0</span>
+                        <span class="stat-label">publicaciones</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="followerCount">0</span>
+                        <span class="stat-label">seguidores</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="followingCount">0</span>
+                        <span class="stat-label">siguiendo</span>
+                    </div>
+                </div>
+                <div class="profile-bio">
+                    <strong id="profileFullname"></strong>
+                    <p id="profileBioText">Desarrollador apasionado por crear cosas increíbles 🚀</p>
+                    <span class="role-badge" id="profileRole"></span>
+                </div>
+            </div>
+        </div>
+        <div class="profile-posts" id="profilePosts"></div>
+    </div>
+
+    <!-- Create Post Modal -->
+    <div class="modal" id="createPostModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Crear Publicación</span>
+                <span style="cursor: pointer;" onclick="closeCreatePost()">✕</span>
+            </div>
+            <div class="modal-body">
+                <img id="postPreview" class="preview-image">
+                <div class="file-input-wrapper" onclick="document.getElementById('postImage').click()">
+                    <input type="file" id="postImage" accept="image/*" onchange="handlePostImage(this)">
+                    <div style="font-size: 48px; margin-bottom: 12px;">📷</div>
+                    <p>Arrastra una foto aquí o haz clic para seleccionar</p>
+                </div>
+                <textarea class="caption-input" id="postCaption" placeholder="Escribe un pie de foto..."></textarea>
+                <button class="btn" onclick="createPost()" style="margin-top: 16px;">Compartir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Nav -->
+    <div class="mobile-nav">
+        <span class="nav-icon" onclick="showFeed()">🏠</span>
+        <span class="nav-icon" onclick="openChat()">💬</span>
+        <span class="nav-icon" onclick="openCreatePost()">➕</span>
+        <span class="nav-icon" onclick="showProfile()">👤</span>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Data Management
+        let currentUser = null;
+        let currentChat = null;
+        
+        // Initialize data structure
+        function initData() {
+            if (!localStorage.getItem('users')) {
+                localStorage.setItem('users', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('posts')) {
+                localStorage.setItem('posts', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('messages')) {
+                localStorage.setItem('messages', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('chats')) {
+                localStorage.setItem('chats', JSON.stringify([]));
+            }
+        }
+
+        initData();
+
+        // Auth Functions
+        function toggleAuth() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            loginForm.style.display = loginForm.style.display === 'none' ? 'block' : 'none';
+            registerForm.style.display = registerForm.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function previewAvatar(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                    document.getElementById('avatarPreview').style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function register() {
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            const role = document.getElementById('regRole').value;
+            const avatarInput = document.getElementById('regAvatar');
+            
+            if (!username || !password) {
+                showToast('Por favor completa todos los campos');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users'));
+            if (users.find(u => u.username === username)) {
+                showToast('El usuario ya existe');
+                return;
+            }
+
+            let avatar = 'https://via.placeholder.com/150';
+            if (avatarInput.files && avatarInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    avatar = e.target.result;
+                    saveUser();
+                };
+                reader.readAsDataURL(avatarInput.files[0]);
+            } else {
+                saveUser();
+            }
+
+            function saveUser() {
+                const newUser = {
+                    id: Date.now().toString(),
+                    username,
+                    password,
+                    role,
+                    avatar,
+                    bio: 'Nuevo usuario de SocialDev',
+                    followers: [],
+                    following: [],
+                    createdAt: new Date().toISOString()
+                };
+                
+                users.push(newUser);
+                localStorage.setItem('users', JSON.stringify(users));
+                showToast('Registro exitoso. Inicia sesión.');
+                toggleAuth();
+            }
+        }
+
+        function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const users = JSON.parse(localStorage.getItem('users'));
+            const user = users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                showApp();
+                showToast(`Bienvenido, ${user.username}!`);
+            } else {
+                showToast('Usuario o contraseña incorrectos');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            location.reload();
+        }
+
+        function checkAuth() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showApp();
+            }
+        }
+
+        // App Navigation
+        function showApp() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            loadFeed();
+            loadStories();
+        }
+
+        function showFeed() {
+            document.getElementById('chatContainer').style.display = 'none';
+            document.getElementById('profileContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'block';
+            loadFeed();
+        }
+
+        function showProfile(userId = null) {
+            const user = userId ? 
+                JSON.parse(localStorage.getItem('users')).find(u => u.id === userId) : 
+                currentUser;
+            
+            if (!user) return;
+            
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('chatContainer').style.display = 'none';
+            document.getElementById('profileContainer').style.display = 'block';
+            
+            document.getElementById('profileAvatar').src = user.avatar;
+            document.getElementById('profileUsername').textContent = user.username;
+            document.getElementById('profileFullname').textContent = user.username;
+            document.getElementById('profileRole').textContent = user.role;
+            document.getElementById('profileRole').className = `role-badge role-${user.role}`;
+            
+            const posts = JSON.parse(localStorage.getItem('posts')).filter(p => p.userId === user.id);
+            document.getElementById('postCount').textContent = posts.length;
+            document.getElementById('followerCount').textContent = user.followers.length;
+            document.getElementById('followingCount').textContent = user.following.length;
+            
+            const postsContainer = document.getElementById('profilePosts');
+            postsContainer.innerHTML = '';
+            
+            posts.forEach(post => {
+                const postDiv = document.createElement('div');
+                postDiv.className = 'profile-post';
+                postDiv.innerHTML = `
+                    <img src="${post.image}" alt="Post">
+                    <div class="profile-post-overlay">
+                        <span>❤️ ${post.likes.length}</span>
+                        <span>💬 ${post.comments.length}</span>
+                    </div>
+                `;
+                postsContainer.appendChild(postDiv);
+            });
+        }
+
+        // Feed Functions
+        function loadStories() {
+            const users = JSON.parse(localStorage.getItem('users'));
+            const container = document.getElementById('storiesContainer');
+            container.innerHTML = '';
+            
+            users.forEach(user => {
+                const story = document.createElement('div');
+                story.className = 'story';
+                story.onclick = () => showProfile(user.id);
+                story.innerHTML = `
+                    <div class="story-ring">
+                        <img src="${user.avatar}" class="story-img" alt="${user.username}">
+                    </div>
+                    <span class="story-name">${user.username}</span>
+                `;
+                container.appendChild(story);
+            });
+        }
+
+        function loadFeed() {
+            const posts = JSON.parse(localStorage.getItem('posts')).reverse();
+            const users = JSON.parse(localStorage.getItem('users'));
+            const container = document.getElementById('feed');
+            container.innerHTML = '';
+            
+            posts.forEach(post => {
+                const user = users.find(u => u.id === post.userId);
+                if (!user) return;
+                
+                const postEl = createPostElement(post, user);
+                container.appendChild(postEl);
+            });
+        }
+
+        function createPostElement(post, user) {
+            const div = document.createElement('div');
+            div.className = 'post';
+            
+            const isLiked = post.likes.includes(currentUser.id);
+            const timeAgo = getTimeAgo(post.createdAt);
+            
+            div.innerHTML = `
+                <div class="post-header">
+                    <img src="${user.avatar}" class="post-user-img ${user.role}" onclick="showProfile('${user.id}')">
+                    <div class="post-user-info">
+                        <div class="post-username" onclick="showProfile('${user.id}')">
+                            ${user.username}
+                            <span class="role-badge role-${user.role}">${user.role}</span>
+                        </div>
+                        <div class="post-location">Original Audio</div>
+                    </div>
+                    <div class="post-more">•••</div>
+                </div>
+                <img src="${post.image}" class="post-image" alt="Post content">
+                <div class="post-actions">
+                    <div class="post-actions-left">
+                        <span class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}')">
+                            ${isLiked ? '❤️' : '🤍'}
+                        </span>
+                        <span class="action-btn">💬</span>
+                        <span class="action-btn">✈️</span>
+                    </div>
+                    <span class="action-btn">🔖</span>
+                </div>
+                <div class="post-likes">${post.likes.length} Me gusta</div>
+                <div class="post-caption">
+                    <strong>${user.username}</strong> ${post.caption}
+                </div>
+                <div class="post-time">${timeAgo}</div>
+            `;
+            
+            return div;
+        }
+
+        function toggleLike(postId) {
+            const posts = JSON.parse(localStorage.getItem('posts'));
+            const post = posts.find(p => p.id === postId);
+            
+            if (post.likes.includes(currentUser.id)) {
+                post.likes = post.likes.filter(id => id !== currentUser.id);
+            } else {
+                post.likes.push(currentUser.id);
+            }
+            
+            localStorage.setItem('posts', JSON.stringify(posts));
+            loadFeed();
+        }
+
+        // Post Creation
+        function openCreatePost() {
+            document.getElementById('createPostModal').style.display = 'flex';
+        }
+
+        function closeCreatePost() {
+            document.getElementById('createPostModal').style.display = 'none';
+            document.getElementById('postImage').value = '';
+            document.getElementById('postPreview').style.display = 'none';
+            document.getElementById('postCaption').value = '';
+        }
+
+        function handlePostImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('postPreview').src = e.target.result;
+                    document.getElementById('postPreview').style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function createPost() {
+            const caption = document.getElementById('postCaption').value;
+            const imageSrc = document.getElementById('postPreview').src;
+            
+            if (!document.getElementById('postImage').files[0]) {
+                showToast('Selecciona una imagen');
+                return;
+            }
+            
+            const newPost = {
+                id: Date.now().toString(),
+                userId: currentUser.id,
+                image: imageSrc,
+                caption: caption,
+                likes: [],
+                comments: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            const posts = JSON.parse(localStorage.getItem('posts'));
+            posts.push(newPost);
+            localStorage.setItem('posts', JSON.stringify(posts));
+            
+            closeCreatePost();
+            loadFeed();
+            showToast('Publicación creada');
+        }
+
+        // Chat Functions
+        function openChat() {
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('profileContainer').style.display = 'none';
+            document.getElementById('chatContainer').style.display = 'block';
+            loadChatList();
+            
+            // Reset badge
+            document.getElementById('msgBadge').style.display = 'none';
+        }
+
+        function loadChatList() {
+            const users = JSON.parse(localStorage.getItem('users'));
+            const chats = JSON.parse(localStorage.getItem('chats'));
+            const container = document.getElementById('chatList');
+            container.innerHTML = '';
+            
+            // Add group chat
+            const groupChat = document.createElement('div');
+            groupChat.className = 'chat-item active';
+            groupChat.onclick = () => selectChat('group');
+            groupChat.innerHTML = `
+                <img src="https://via.placeholder.com/150/667eea/ffffff?text=GROUP" style="border: 2px solid #667eea;">
+                <div class="chat-item-info">
+                    <div class="chat-item-name">Chat Grupal 🌍</div>
+                    <div class="chat-item-preview">Todos los usuarios</div>
+                </div>
+            `;
+            container.appendChild(groupChat);
+            
+            // Add individual users
+            users.forEach(user => {
+                if (user.id === currentUser.id) return;
+                
+                const chat = document.createElement('div');
+                chat.className = 'chat-item';
+                chat.onclick = () => selectChat(user.id);
+                
+                const lastMessage = getLastMessage(user.id);
+                
+                chat.innerHTML = `
+                    <img src="${user.avatar}" class="${user.role}">
+                    <div class="chat-item-info">
+                        <div class="chat-item-name">
+                            ${user.username}
+                            <span class="role-badge role-${user.role}" style="font-size: 10px; padding: 2px 8px;">${user.role}</span>
+                        </div>
+                        <div class="chat-item-preview">${lastMessage || 'Toca para chatear'}</div>
+                    </div>
+                `;
+                container.appendChild(chat);
+            });
+            
+            selectChat('group');
+        }
+
+        function getLastMessage(userId) {
+            const messages = JSON.parse(localStorage.getItem('messages'));
+            const chat = messages.filter(m => 
+                (m.senderId === currentUser.id && m.receiverId === userId) ||
+                (m.senderId === userId && m.receiverId === currentUser.id)
+            );
+            return chat.length > 0 ? chat[chat.length - 1].text : '';
+        }
+
+        function selectChat(chatId) {
+            currentChat = chatId;
+            const container = document.getElementById('chatMain');
+            
+            if (chatId === 'group') {
+                container.innerHTML = `
+                    <div style="padding: 20px; border-bottom: 1px solid var(--border-color); background: var(--card-bg);">
+                        <h3>Chat Grupal 🌍 <span class="online-indicator"></span></h3>
+                        <small style="color: var(--text-secondary);">${JSON.parse(localStorage.getItem('users')).length} miembros</small>
+                    </div>
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input-area">
+                        <button class="chat-action-btn secondary" onclick="document.getElementById('chatImage').click()">📷</button>
+                        <input type="file" id="chatImage" accept="image/*" style="display: none;" onchange="sendImage(this)">
+                        <textarea class="chat-input" id="messageInput" placeholder="Mensaje al grupo..." rows="1"></textarea>
+                        <button class="chat-action-btn" onclick="sendMessage()">➤</button>
+                    </div>
+                `;
+            } else {
+                const user = JSON.parse(localStorage.getItem('users')).find(u => u.id === chatId);
+                container.innerHTML = `
+                    <div style="padding: 20px; border-bottom: 1px solid var(--border-color); background: var(--card-bg); display: flex; align-items: center; gap: 12px;">
+                        <img src="${user.avatar}" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid ${user.role === 'programmer' ? '#10b981' : '#3b82f6'};">
+                        <div>
+                            <h3>${user.username}</h3>
+                            <small style="color: var(--text-secondary);">En línea</small>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input-area">
+                        <button class="chat-action-btn secondary" onclick="document.getElementById('chatImage').click()">📷</button>
+                        <input type="file" id="chatImage" accept="image/*" style="display: none;" onchange="sendImage(this)">
+                        <textarea class="chat-input" id="messageInput" placeholder="Mensaje..." rows="1"></textarea>
+                        <button class="chat-action-btn" onclick="sendMessage()">➤</button>
+                    </div>
+                `;
+            }
+            
+            loadMessages();
+            
+            // Auto-resize textarea
+            const textarea = document.getElementById('messageInput');
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+        }
+
+        function loadMessages() {
+            const messages = JSON.parse(localStorage.getItem('messages'));
+            const container = document.getElementById('chatMessages');
+            container.innerHTML = '';
+            
+            const relevantMessages = messages.filter(m => {
+                if (currentChat === 'group') {
+                    return m.receiverId === 'group';
+                }
+                return (m.senderId === currentUser.id && m.receiverId === currentChat) ||
+                       (m.senderId === currentChat && m.receiverId === currentUser.id);
+            });
+            
+            relevantMessages.forEach(msg => {
+                const isSent = msg.senderId === currentUser.id;
+                const user = isSent ? currentUser : JSON.parse(localStorage.getItem('users')).find(u => u.id === msg.senderId);
+                
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+                
+                let content = '';
+                if (msg.image) {
+                    content += `<img src="${msg.image}" class="message-image" onclick="window.open(this.src)">`;
+                }
+                if (msg.text) {
+                    content += `<div>${msg.text}</div>`;
+                }
+                
+                msgDiv.innerHTML = `
+                    ${!isSent && currentChat === 'group' ? `<small style="opacity: 0.8; font-size: 11px;">${user.username}</small><br>` : ''}
+                    ${content}
+                    <div class="message-time">${new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                `;
+                
+                container.appendChild(msgDiv);
+            });
+            
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            const newMessage = {
+                id: Date.now().toString(),
+                senderId: currentUser.id,
+                receiverId: currentChat,
+                text: text,
+                image: null,
+                timestamp: new Date().toISOString()
+            };
+            
+            const messages = JSON.parse(localStorage.getItem('messages'));
+            messages.push(newMessage);
+            localStorage.setItem('messages', JSON.stringify(messages));
+            
+            input.value = '';
+            input.style.height = 'auto';
+            loadMessages();
+            
+            // Update chat list preview
+            loadChatList();
+        }
+
+        function sendImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const newMessage = {
+                        id: Date.now().toString(),
+                        senderId: currentUser.id,
+                        receiverId: currentChat,
+                        text: '',
+                        image: e.target.result,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    const messages = JSON.parse(localStorage.getItem('messages'));
+                    messages.push(newMessage);
+                    localStorage.setItem('messages', JSON.stringify(messages));
+                    
+                    loadMessages();
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Utilities
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function getTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + ' AÑOS';
+            
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + ' MESES';
+            
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + ' DÍAS';
+            
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + ' HORAS';
+            
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + ' MINUTOS';
+            
+            return 'AHORA';
+        }
+
+        // Check for existing session
+        window.onload = checkAuth;
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('createPostModal');
+            if (event.target === modal) {
+                closeCreatePost();
+            }
+        }
+    </script>
+</body>
+</html>
